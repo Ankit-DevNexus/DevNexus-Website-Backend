@@ -12,6 +12,7 @@ import { contactus } from '../controllers/ContactusControllers.js';
 import { addTech, getTechs } from '../controllers/techControllers.js';
 import { AddUIUXDesignController, getUIUXDesignController } from '../controllers/UIUXDesignTechnologiesController.js';
 import { AddBlockchainController, getBlockchainController } from '../controllers/BlockchainPlatformController.js';
+import { getAllApplications, submitApplication } from '../controllers/CareerFormControllers.js';
 
 const router = express.Router();
 
@@ -87,6 +88,10 @@ router.get('/all-uiux', getUIUXDesignController);
 
 router.post('/add-blockchain-platform', svgUpload.single('BlockchainImage'), AddBlockchainController);
 router.get('/all-blockchain-platform', getBlockchainController);
+
+
+router.post("/apply", upload.single('resume'), submitApplication);
+router.get("/All-Application", getAllApplications);
 
 
 export default router;
