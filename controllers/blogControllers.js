@@ -129,6 +129,11 @@ export const EditBlogController = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ success: false, message: "Invalid blog ID" });
     }
+
+    const blog = await blogModel.findById(id);
+    if (!blog) {
+      return res.status(404).json({ success: false, message: "Blog not found" });
+    }
     console.log("Uploaded File:", req.file);
 
 
@@ -136,8 +141,35 @@ export const EditBlogController = async (req, res) => {
     if (title?.trim()) updateFields.title = title.trim();
     if (blogContent?.trim()) updateFields.blogContent = blogContent.trim();
 
-    if (Object.keys(updateFields).length === 0) {
-      return res.status(400).json({ success: false, message: "No valid fields to update" });
+    // if (Object.keys(updateFields).length === 0) {
+    //   return res.status(400).json({ success: false, message: "No valid fields to update" });
+    // }
+
+     if (req.file) {
+      const newImagePath = req.file.path;
+
+      // Delete old image from Cloudinary if exists
+      if (blog.featuredImage) {
+        try {
+          const urlParts = blog.featuredImage.split("/");
+          const fileName = urlParts[urlParts.length - 1];
+          const publicId = `blogs/${fileName.split(".")[0]}`;
+          await cloudinary.uploader.destroy(publicId);
+          console.log(`🗑️ Old image deleted from Cloudinary: ${publicId}`);
+        } catch (err) {
+          console.warn("⚠️ Failed to delete old Cloudinary image:", err.message);
+        }
+      }
+
+      // Upload new image to Cloudinary
+      const uploadedImage = await cloudinary.uploader.upload(newImagePath, {
+        folder: "blogs",
+      });
+
+      updateFields.featuredImage = uploadedImage.secure_url;
+
+      // Delete local file
+      fs.unlinkSync(newImagePath);
     }
 
     const updatedBlog = await blogModel.findByIdAndUpdate(id, updateFields, { new: true });
