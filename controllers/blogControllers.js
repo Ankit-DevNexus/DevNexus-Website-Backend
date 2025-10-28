@@ -135,3 +135,40 @@ export const EditBlogController = async (req, res) => {
     });
   }
 };
+
+export const DeleteBlogByIdController = async (req, res) => {
+  try {
+    const {id} = req.params;
+
+    if(!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({message: "Invalid blog Id"});
+    }
+    const blog = await blogModel.findById(id);
+  if(!blog) {
+    return res.status(404).json({message: "Blog not found"});
+  }
+
+  if(blog.featuredImage) {
+    try {
+      const parts = blog.featuredImage.split("/");
+      const publicIdWithExt = parts.slice(-2).join("/").split(".")[0];
+      await cloudinary.uploader.destroy(publicIdWithExt);
+      console.log("Deleted image from cloudinary:", publicIdWithExt);
+    } catch (err) {
+      console.warn("Failed to delete image from cloudinary:", err.message);
+    }
+  }
+  await blogModel.findByIdAndDelete(id);
+  res.status(200).json({
+    success: true,
+    message: "Blog deleted successfully",
+  });
+} catch (error) {
+  console.error("DeleteBlogByIdController error:", error);
+  res.status(500).json({
+    success: false,
+    message: "Internal server error",
+    error: error.message,
+  });
+}
+};
