@@ -3,7 +3,7 @@ import {createPortfolioToCloudinary, getAllPortfolios} from '../controllers/proj
 import { upload,  svgUpload} from '../middleware/multer.js';
 import { textSliderImage, addIndustry, addPort, addService, getServices, getTextSliderImages, getPorts, getIndustries } from '../controllers/landingPageControllers.js';
 import { addTeamMember, getTeamMembers } from '../controllers/ourTeamControllers.js';
-import { BlogController, AllBlogController, BlogImageController, getBlogByIdController, DeleteBlogByIdController } from '../controllers/blogControllers.js';
+import { BlogController, AllBlogController, BlogImageController, getBlogByIdController, DeleteBlogController, EditBlogController } from '../controllers/blogControllers.js';
 import { subscribeToNewsletter } from '../controllers/newsletterControllers.js';
 import { addTestimonials, getTestimonials } from '../controllers/testimonialsControllers.js';
 import { addBrand, getBrands } from '../controllers/brandControllers.js';
@@ -58,7 +58,8 @@ router.post('/upload-image', upload.single('upload'), BlogImageController);
 router.post('/create-blogs', upload.single("featuredImage"), BlogController);
 router.get('/blogs', AllBlogController);
 router.get('/blogs/:id', getBlogByIdController);
-router.delete("/blogs/:id", DeleteBlogByIdController);
+router.patch("/update/blogs/:id", upload.single("featuredImage"), EditBlogController);
+router.delete("/delete/blogs/:id", DeleteBlogController);
 
 router.post("/subscribe", subscribeToNewsletter);
 
