@@ -5,7 +5,7 @@ dotenv.config();
 import blogModel from "../model/blogModel.js";
 import {uploadOnCloudinary } from '../utils/cloudinary.js';
 import { v2 as cloudinary } from 'cloudinary';
-import fs from 'fs'
+import fs from 'fs';
 import mongoose from "mongoose";
 
 // console.log("Cloudinary config:", {
