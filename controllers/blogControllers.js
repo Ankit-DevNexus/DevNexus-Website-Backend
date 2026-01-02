@@ -8,10 +8,10 @@ import { v2 as cloudinary } from 'cloudinary';
 import fs from 'fs'
 import mongoose from "mongoose";
 
-console.log("Cloudinary config:", {
-  cloud_name: process.env.CLOUD_NAME,
-  api_key: process.env.CLOUD_API_KEY,
-});
+// console.log("Cloudinary config:", {
+//   cloud_name: process.env.CLOUD_NAME,
+//   api_key: process.env.CLOUD_API_KEY,
+// });
 
 
 export const BlogController = async (req, res) => {
