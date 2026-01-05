@@ -21,12 +21,14 @@ app.use('/uploads', express.static('uploads'));
 
 app.use("/api", Routes);
 
-// for testing
 app.get('/', (req, res) => {
-    res.send("Home");
+    res.status(200).json({
+        sucess: true,
+        messgae: "API is running"
+    });
 })
 
 //mongodb connection
 app.listen(PORT, () => {
-    console.log("App Started");
+    console.log(`Server is listening on http:localhost:${PORT}`);
 });
