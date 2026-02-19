@@ -143,7 +143,7 @@ export const getTextSliderImages = async (req, res) => {
 
 export const addPort = async (req, res) => {
   try {
-    const { title } = req.body;
+    const { title, col } = req.body;
     const image = req.file?.path;
 
     if (!image) {
@@ -169,6 +169,7 @@ export const addPort = async (req, res) => {
     const newPort = new PortModel({
       image: uploadedImage?.url || "",
       title,
+      col: col || 1,
     });
     const savedPort = await newPort.save();
     res.status(201).json({
@@ -188,7 +189,7 @@ export const addPort = async (req, res) => {
 
 export const getPorts = async (req, res) => {
   try {
-    const ports = await PortModel.find().sort({ createdAt: -1 }); // Optional: latest first
+    const ports = await PortModel.find().sort({ col: 1 }); // Optional: latest first
     res.status(200).json({
       success: true,
       message: "Port images fetched successfully",

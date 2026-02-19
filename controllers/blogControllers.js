@@ -1,36 +1,35 @@
-
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 dotenv.config();
 
 import blogModel from "../model/blogModel.js";
-import {uploadOnCloudinary } from '../utils/cloudinary.js';
-import { v2 as cloudinary } from 'cloudinary';
-import fs from 'fs';
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import { v2 as cloudinary } from "cloudinary";
+import fs from "fs";
 import mongoose from "mongoose";
 
 export const BlogController = async (req, res) => {
   try {
-    console.log("=== BlogController payload ===");
-    console.log("req.body:", req.body);
-    console.log("req.file:", req.file);
+    // console.log("=== BlogController payload ===");
+    // console.log("req.body:", req.body);
+    // console.log("req.file:", req.file);
 
-    const { title, blogContent } = req.body;
+    const { title, blogContent, keywords } = req.body;
     const featuredImagePath = req.file?.path;
 
     if (!blogContent || !title || !featuredImagePath) {
       return res.status(400).json({
         message: "Missing title, content, or image file",
-        received: {  featuredImagePath, title, blogContent }
+        received: { featuredImagePath, title, blogContent },
       });
     }
 
-   const BlogFeaturedImage = req.file?.path;
+    const BlogFeaturedImage = req.file?.path;
 
     if (!BlogFeaturedImage) {
       return res.status(400).json({
         success: false,
-        message: "Blog image is missing"
-      })
+        message: "Blog image is missing",
+      });
     }
 
     let uploadedImage;
@@ -39,80 +38,81 @@ export const BlogController = async (req, res) => {
       console.log("Upload Image", uploadedImage);
     } catch (error) {
       console.log("Error uploading image to cloudinary", error);
-      return res.status(500).json({ success: false, message: "Error uploading image to cloudinary" });
+      return res.status(500).json({
+        success: false,
+        message: "Error uploading image to cloudinary",
+      });
     }
     const newBlog = new blogModel({
       title,
       blogContent,
       featuredImage: uploadedImage.secure_url,
+      keywords,
     });
 
     await newBlog.save();
     res.status(201).json({ message: "Blog saved successfully!" });
   } catch (err) {
-     console.error("❌ Full error details:", err);
-  res.status(500).json({ message: "Internal server error", error: err.message });
+    console.error("❌ Full error details:", err);
+    res
+      .status(500)
+      .json({ message: "Internal server error", error: err.message });
   }
 };
 
-
 export const AllBlogController = async (req, res) => {
-    try {
-        const blogs = await blogModel.find().sort({ createdAt: -1 }).limit(10);
-        res.status(200).json(blogs);
-
-    } catch (error) {
-        res.status(500).json({ message: 'Failed to fetch blogs' });
-    }
-}
-
+  try {
+    const blogs = await blogModel.find().sort({ createdAt: -1 }).limit(10);
+    res.status(200).json(blogs);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch blogs" });
+  }
+};
 
 // GET /api/blogs/:id
 export const getBlogByIdController = async (req, res) => {
-    try {
-        const { id } = req.params;
+  try {
+    const { id } = req.params;
 
-        // Validate the id string
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            return res.status(400).json({ message: 'Invalid blog ID' });
-        }
-
-        //  Look up the blog
-        const blog = await blogModel.findById(id);
-
-        //  Handle “not found”
-        if (!blog) {
-            return res.status(404).json({ message: 'Blog not found' });
-        }
-
-        // Return the blog
-        res.status(200).json(blog);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: 'Error fetching blog' });
+    // Validate the id string
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid blog ID" });
     }
+
+    //  Look up the blog
+    const blog = await blogModel.findById(id);
+
+    //  Handle “not found”
+    if (!blog) {
+      return res.status(404).json({ message: "Blog not found" });
+    }
+
+    // Return the blog
+    res.status(200).json(blog);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error fetching blog" });
+  }
 };
 
 export const BlogImageController = async (req, res) => {
-    try {
-        const localPath = req.file?.path;
-        console.log("localPath", localPath);
+  try {
+    const localPath = req.file?.path;
+    console.log("localPath", localPath);
 
+    // Upload to Cloudinary
+    const result = await cloudinary.uploader.upload(localPath, {
+      folder: "blogs",
+    });
 
-        // Upload to Cloudinary
-        const result = await cloudinary.uploader.upload(localPath, {
-            folder: "blogs"
-        });
+    // Remove local file after upload
+    fs.unlinkSync(localPath);
 
-        // Remove local file after upload
-        fs.unlinkSync(localPath);
-
-        res.status(200).json({ url: result.secure_url });
-
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Image upload failed" });
-    }
+    res.status(200).json({ url: result.secure_url });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Image upload failed" });
+  }
 };
 
 export const EditBlogController = async (req, res) => {
@@ -121,15 +121,18 @@ export const EditBlogController = async (req, res) => {
     const { title, blogContent } = req.body;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ success: false, message: "Invalid blog ID" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid blog ID" });
     }
 
     const blog = await blogModel.findById(id);
     if (!blog) {
-      return res.status(404).json({ success: false, message: "Blog not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Blog not found" });
     }
-    console.log("Uploaded File:", req.file);
-
+    // console.log("Uploaded File:", req.file);
 
     const updateFields = {};
     if (title?.trim()) updateFields.title = title.trim();
@@ -139,7 +142,7 @@ export const EditBlogController = async (req, res) => {
     //   return res.status(400).json({ success: false, message: "No valid fields to update" });
     // }
 
-     if (req.file) {
+    if (req.file) {
       const newImagePath = req.file.path;
 
       // Delete old image from Cloudinary if exists
@@ -151,7 +154,10 @@ export const EditBlogController = async (req, res) => {
           await cloudinary.uploader.destroy(publicId);
           console.log(`🗑️ Old image deleted from Cloudinary: ${publicId}`);
         } catch (err) {
-          console.warn("⚠️ Failed to delete old Cloudinary image:", err.message);
+          console.warn(
+            "⚠️ Failed to delete old Cloudinary image:",
+            err.message,
+          );
         }
       }
 
@@ -166,10 +172,14 @@ export const EditBlogController = async (req, res) => {
       fs.unlinkSync(newImagePath);
     }
 
-    const updatedBlog = await blogModel.findByIdAndUpdate(id, updateFields, { new: true });
+    const updatedBlog = await blogModel.findByIdAndUpdate(id, updateFields, {
+      new: true,
+    });
 
     if (!updatedBlog) {
-      return res.status(404).json({ success: false, message: "Blog not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Blog not found" });
     }
 
     res.status(200).json({
@@ -179,23 +189,29 @@ export const EditBlogController = async (req, res) => {
     });
   } catch (error) {
     console.error("Error updating blog:", error);
-    res.status(500).json({ success: false, message: "Internal server error", error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
   }
 };
-
-
 
 export const DeleteBlogController = async (req, res) => {
   try {
     const { id } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ success: false, message: "Invalid blog ID" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid blog ID" });
     }
 
     const blog = await blogModel.findById(id);
     if (!blog) {
-      return res.status(404).json({ success: false, message: "Blog not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Blog not found" });
     }
 
     if (blog.featuredImage) {
