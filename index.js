@@ -14,6 +14,7 @@ const app = express();
 connectDB(uri);
 
 const allowedOrigins = [
+  "http://localhost:3000",
   "http://devnexussolutions.com",
   "https://devnexussolutions.com",
   "http://www.devnexussolutions.com",

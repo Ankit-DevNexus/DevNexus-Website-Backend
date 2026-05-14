@@ -8,8 +8,7 @@ let dashboardDB = null;
 export const getDashboardDB = async () => {
   if (!dashboardDB) {
     try {
-      console.log("DB URI : ", process.env.DASHBOARD_DB_URI);
-
+      
       dashboardDB = await mongoose.createConnection(
         process.env.DASHBOARD_DB_URI,
         {
