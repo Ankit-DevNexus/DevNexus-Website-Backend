@@ -2,15 +2,29 @@ import CareerFormModel from "../model/CareerFormModel.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import nodemailer from "nodemailer";
 
-// ⚙️ Create a reusable email transporter once (not every time)
 const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: Number(process.env.SMTP_PORT),
     secure: Number(process.env.SMTP_PORT) === 465,
+    
     auth: {
         user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS, // Use Gmail App Password (not normal Gmail password)
+        pass: process.env.EMAIL_PASS,
     },
+
+    tls: {
+        rejectUnauthorized: false,
+    },
+
+    connectionTimeout: 10000,
+});
+
+transporter.verify((error, success) => {
+    if (error) {
+        console.log("❌ SMTP ERROR:", error);
+    } else {
+        console.log("✅ SMTP SERVER READY");
+    }
 });
 
 // 📧 Universal email sender utility
@@ -28,7 +42,9 @@ const sendEmail = async (to, subject, htmlContent) => {
         return info;
     } catch (error) {
         console.error("❌ Error sending email:", error.message);
-        if (error.response) console.error("↳ Gmail response:", error.response);
+        if (error.response) {
+            console.error("↳ SMTP response:", error.response);
+        }
         throw new Error("Failed to send email");
     }
 };

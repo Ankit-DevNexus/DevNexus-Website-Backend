@@ -95,9 +95,9 @@ export const contactus = async (req, res) => {
       port: Number(process.env.SMTP_PORT),
       secure: true,
       auth: {
-        user: process.env.USER_MAIL,
-        pass: process.env.EMAIL_PASS,
-      },
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
     });
 
     // Email to Client
@@ -110,7 +110,7 @@ export const contactus = async (req, res) => {
     });
 
     const clientMailOptions = {
-      from: `"DevNexus Solutions" <${process.env.USER_MAIL}>`,
+      from: `"DevNexus Solutions" <${process.env.EMAIL_USER}>`,
       to: email.trim(), // Client's email
       subject: content.subject,
       html: clientHtmlContent, // Send HTML template to client
