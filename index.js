@@ -19,7 +19,7 @@ const allowedOrigins = [
   "https://devnexussolutions.com",
   "http://www.devnexussolutions.com",
   "https://www.devnexussolutions.com",
-  "https://devnexus-private.vercel.app",
+  "https://meta-testing-3.vercel.app",
 ];
 
 app.use(
