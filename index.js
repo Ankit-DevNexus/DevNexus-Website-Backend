@@ -14,7 +14,7 @@ connectDB(uri);
 
 const allowedOrigins = [
   "http://localhost:3000",
-  "http://localhost:3002", // ✅ your Next.js port
+  "http://localhost:3002", 
   "http://devnexussolutions.com",
   "https://devnexussolutions.com",
   "http://www.devnexussolutions.com",
