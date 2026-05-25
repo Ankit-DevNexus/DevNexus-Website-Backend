@@ -8,7 +8,7 @@ import { getContactUsModel } from "../model/ContactusModel.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Helper to load and replace HTML placeholders
+
 const loadHtmlTemplate = (filename, replacements = {}) => {
   const filePath = path.join(__dirname, `../EmailTemplate/${filename}`);
   let html = fs.readFileSync(filePath, "utf-8");
@@ -19,8 +19,6 @@ const loadHtmlTemplate = (filename, replacements = {}) => {
 
   return html;
 };
-
-// Service-specific content
 const serviceContent = {
   webDevelopment: {
     subject: "Web Development Services - Thank You!",
